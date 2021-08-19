@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+    frontend:
+        image: react_webapp
+        build: ./webapp
+        ports:
+            - '3000:3000'
+        container_name: React_WebApp
+        depends_on:
+            - api
+    api:
+        image: api
+        build: ./api
+        ports:
+            - '5000:5000'
+        container_name: API
+        depends_on:
+            - mongo
+    mongo:
+        image: mongo
+        ports:
+            - '27017:27017'
+        container_name: MongoDB
+    mongo-express:
+        image: mongo-express
+        depends_on:
+            - mongo
+        ports:
+            - "8888:8081"
+        container_name: Mongo_Express
