@@ -1,35 +1,33 @@
 # Esempio MERN Stack Dockerizzato
 
-L'acronimo **MERN** sta per MongoDB, Express, React, Node, l'insieme di queste tecnologie compongono un'architettura full-stack (front-end e back-end)
+Una struttura **MERN** è l'insieme delle tecnologie **M**ongoDB, **E**xpress, **R**eact, **N**ode.js che compongono un'architettura full-stack (front-end e back-end)
 
 Questo esempio sfrutta le seguenti tecnologie per realizzare un'applicazione orientata a un sistema di prenotazioni per spazi coworking.
 
 Il progetto contiene anche un esempio di deploy sfruttando la tecnologia di containerizzazione.
-Attraverso **Docker** è presente un ecosistema facilmente replicabile, leggero e semplice da aggiornare.
+Attraverso **Docker** è possibile strutturare un ecosistema facilmente replicabile e semplice da aggiornare.
 
 Questo progetto è stato realizzato per l'esame finale presso il corso di studio ITS FITSTIC "Alan Turing" di Cesena, A.A. 2020/2021
 
 # Installazione
 
 Attraverso il `docker-compose.yml` è possibile avviare l'intero progetto attraverso il seguente comando da terminale:
-
 ```bash
 $ docker-compose up --build -d
 ```
-
 In alternativa è possibile avviare tutti i vari componenti singolarmente:
-- **api**: nel file `server.js` è necessario cambiare la riga che permette la connesione con il database MongoDB, specificando un indirizzo
+- **backend**: nel file `server.js` è necessario cambiare la riga che permette la connesione con il database MongoDB, specificando un indirizzo
     ```js
     mongoose.connect("mongodb://localhost:27017/mern-example")
     ```
-    Successivamente per scaricare i pacchetti Node necessari e avviare l'applicazione, da terminale posizionarsi nella cartella e lanciare i comandi:
+    Per questo esempio è necessario installare MongoDB localmente.
+
+    Successivamente, per scaricare i pacchetti Node necessari e avviare l'applicazione, posizionarsi attraverso il terminale nella cartella specifica e lanciare i comandi:
     ```bash
     $ npm install
     $ npm start
-    ```
-    Seguendo l'esempio è necessario avere installato MongoDB localmente.
-    
-- **webapp**: per l'app React basta eseguire gli stessi comandi utilizzati per **api**:
+    ```  
+- **frontend**: per l'app React basta eseguire gli stessi comandi utilizzati per **backend**:
     ```bash
     $ npm install
     $ npm start
@@ -39,11 +37,10 @@ In alternativa è possibile avviare tutti i vari componenti singolarmente:
 # Struttura del progetto
 
 Il progetto è strutturato nella seguente gerarchia:
-
 ```
 root/
 │
-├── api/
+├── backend/
 │   ├── middleware/
 |   |   └── crud_prenotazione.js
 │   ├── model/
@@ -51,7 +48,7 @@ root/
 │   ├── dockerfile
 │   └── server.js
 │
-├── webapp/
+├── frontend/
 │   ├── public/
 │   ├── src/
 |   |   ├── components/
@@ -64,36 +61,38 @@ root/
 └── docker-compose.yml
 ```
 
-<u>**api**</u> contiene l'applicazione back-end Node.js che gestisce ed espone le **REST API**. Attraverso **Express** smista le request provenienti dal front-end React, alle funzioni di **CRUD** (Create, Read, Update, Delete) interrogando e scrivendo il database **MongoDB**.
+<u>**backend**</u> contiene l'applicazione Node.js che gestisce ed espone le **REST API**. Attraverso **Express** smista le request provenienti dal front-end React, alle funzioni di **CRUD** (Create, Read, Update, Delete) interrogando e scrivendo il database **MongoDB**.
 
 Questo progetto è possibile consultarlo nel dettaglio al repository dedicato: [Mongoose_Example](https://github.com/lhugolach/Mongoose_example)
 
-<u>**webapp**</u> è l'applicazione **React Typescript**, quindi il front-end. Per dialogare con il back-end è stata utilizzata la libreria **axios** che permette di eseguire chiamate HTTP in modo semplice.
+<u>**frontend**</u>, sviluppato in **React Typescript**, consiste nella WebApp. Per dialogare con il back-end è stata utilizzata la libreria **axios** che permette di eseguire chiamate HTTP in modo semplice.
 
-In dettaglio, nel componente `CreatePrenotazione.tsx` è presente il form di inserimento della prenotazione, che grazie all'utilizzo degli stati di React, è possibile recepire il contenuto degli input text e utilizzare quei dati per eseguire la chiamata **POST**, necessaria al servizio **api** per creare e inserire la prenotazione nel database.
+In dettaglio, nel componente `CreatePrenotazione.tsx` è presente il form di inserimento della prenotazione, che grazie all'utilizzo degli stati di React, è possibile recepire il contenuto degli input text e utilizzare i dati inseriti per eseguire la chiamata **POST**, necessaria al servizio **backend** per creare e inserire la prenotazione nel database.
 
-Nel componente `Admin.tsx` è presente la parte amministrativa che visualizza le prenotazioni inserite nel database, e sempre con l'aiuto di axios, quindi con una chiamata **GET**, è possibile interrogare e recuperare i dati dal database MongoDB, disegnando infine la tabella. In questo caso, questo tipo di chiamata, è necessario l'utilizzo di un model `Prenotazione.tsx` che permette ad axios di incapsulare i dati in ingresso in un oggetto personalizzato.
+Nel componente `Admin.tsx` è presente la parte amministrativa che visualizza le prenotazioni inserite nel database, e sempre con l'aiuto di axios, quindi con una chiamata **GET**, è possibile interrogare e recuperare i dati dal database MongoDB, disegnando infine la tabella. In questo caso la chiamata necessita l'utilizzo di un model `Prenotazione.tsx` che permette ad axios di incapsulare i dati in ingresso in un oggetto personalizzato.
 
 Il `docker-compose.yml` è programmato per raggruppare quattro container insieme:
-- **webapp** che attraverso il `dockerfile` al suo interno, scarica tutte le dipendenze del progetto ed espone il progetto alla porta dichiarata
+- **frontend** che attraverso il `dockerfile` al suo interno, scarica tutte le dipendenze del progetto ed espone il progetto alla porta dichiarata
   ```yml
     frontend:
-        image: react_webapp
-        build: ./webapp
+        image: frontend_react
+        build: ./frontend
         ports:
             - '3000:3000'
-        container_name: React_WebApp
+        container_name: Frontend_React
+        restart: always
         depends_on:
-            - api
+            - backend
   ```
-- **api** stesso processo di webapp, sfruttando sempre il `dockerfile` al suo interno
+- **backend** stesso processo di frontend, sfruttando sempre il `dockerfile` al suo interno
   ```yml
-    api:
-        image: api
-        build: ./api
+    backend:
+        image: backend
+        build: ./backend
         ports:
             - '5000:5000'
-        container_name: API
+        container_name: Backend
+        restart: always
         depends_on:
             - mongo
   ```
@@ -104,30 +103,36 @@ Il `docker-compose.yml` è programmato per raggruppare quattro container insieme
         ports:
             - '27017:27017'
         container_name: MongoDB
+        restart: always
+        volumes:
+            - dbdata:/data/db
+            - dbconfig:/data/configdb
   ```
 - **Mongo Express** aggiunge un'applicazione front-end che permette di visualizzare sul browser il database e il suo contenuto. É facoltativo, il progetto funziona anche senza questo componente.
   ```yml
     mongo-express:
         image: mongo-express
+        ports:
+            - "8081:8081"
+        container_name: Mongo_Express
+        restart: always
+        environment:
+            - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
         depends_on:
             - mongo
-        ports:
-            - "8888:8081"
-        container_name: Mongo_Express
   ```
 
 # Dipendenze
 
-<u>**api**</u> :
+<u>**Backend**</u> :
 - [**Mongoose**](https://mongoosejs.com/)
 - [**Express**](https://expressjs.com/)
 - [**CORS**](https://github.com/expressjs/cors)
 - [**Dotenv**](https://github.com/motdotla/dotenv) permette la gestione delle variabili d'ambiente
 
-<u>**webapp**</u> :
+<u>**Frontend**</u> :
 - [**Axios**](https://github.com/axios/axios)
-- [**Bootstrap**](https://getbootstrap.com/) solo CSS
-
+- [**Bootstrap**](https://getbootstrap.com/) solo CSS tramite CDN (vedi [index.html](https://github.com/lhugolach/Dockerized_MERN_Stack_Example/blob/main/frontend/public/index.html))
 
 # Requisiti
 Per eseguire il progetto in versione containerizzata, è necessario soltanto installare [**Docker**](https://www.docker.com/)

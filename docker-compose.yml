@@ -2,19 +2,21 @@ version: '2'
 
 services:
     frontend:
-        image: react_webapp
-        build: ./webapp
+        image: frontend_react
+        build: ./frontend
         ports:
             - '3000:3000'
-        container_name: React_WebApp
+        container_name: Frontend_React
+        restart: always
         depends_on:
-            - api
-    api:
-        image: api
-        build: ./api
+            - backend
+    backend:
+        image: backend
+        build: ./backend
         ports:
             - '5000:5000'
-        container_name: API
+        container_name: Backend
+        restart: always
         depends_on:
             - mongo
     mongo:
@@ -22,10 +24,20 @@ services:
         ports:
             - '27017:27017'
         container_name: MongoDB
+        restart: always
+        volumes:
+            - dbdata:/data/db
+            - dbconfig:/data/configdb
     mongo-express:
         image: mongo-express
+        ports:
+            - "8081:8081"
+        container_name: Mongo_Express
+        restart: always
+        environment:
+            - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
         depends_on:
             - mongo
-        ports:
-            - "8888:8081"
-        container_name: Mongo_Express
+volumes:
+    dbdata:
+    dbconfig:

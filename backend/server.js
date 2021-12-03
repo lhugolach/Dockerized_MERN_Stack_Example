@@ -3,12 +3,16 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const Prenotazione = require('./middleware/crud_prenotazione');
+const allowedOrigins = ['http://localhost:3000',
+                        'http://localhost:5000'];
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins
+}));
 
 mongoose.connect("mongodb://mongo:27017/mern-example", 
-{ useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false}).then(res => {
+{ useNewUrlParser: true, useUnifiedTopology: true}).then(res => {
   console.log("MongoDb connected");
 
   app.post('/prenotazione', async function(req, res) {

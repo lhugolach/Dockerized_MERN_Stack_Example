@@ -4,8 +4,8 @@ import { Prenotazione } from '../models/Prenotazione';
 
 export const Admin: React.FunctionComponent = () => {
     
-    let [listaPrenotazioni, setListaPrenotazioni] = useState<Prenotazione[]>([]);
-    let [isLoading, setIsLoading] = useState<boolean>(false);
+    const [listaPrenotazioni, setListaPrenotazioni] = useState<Prenotazione[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const getPrenotazioni = () => {
         setIsLoading(true);
@@ -63,7 +63,7 @@ export const Admin: React.FunctionComponent = () => {
     }, []);
     
     return <>
-    <div className="container my-5 admin">
+    <div className="container my-5 admin table-responsive">
         <span className="text-center"><h1>Lista prenotazioni</h1></span>
         <hr />
 
