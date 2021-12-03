@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:lts-slim
 
 # Creazione della directory dell'app
 WORKDIR /usr/src/app
